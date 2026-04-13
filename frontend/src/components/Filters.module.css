@@ -1,0 +1,106 @@
+.bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;
+  background: white;
+  padding: 1rem 1.25rem;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  margin-bottom: 1.5rem;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+}
+
+.select {
+  border: 1.5px solid #e2e8f0;
+  border-radius: 7px;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.875rem;
+  color: #1e293b;
+  background: white;
+  cursor: pointer;
+  min-width: 130px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.select:focus {
+  border-color: #3b82f6;
+}
+
+.search {
+  border: 1.5px solid #e2e8f0;
+  border-radius: 7px;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.875rem;
+  color: #1e293b;
+  background: white;
+  min-width: 180px;
+  outline: none;
+  transition: border-color 0.15s;
+  font-family: inherit;
+}
+
+.search::placeholder {
+  color: #94a3b8;
+}
+
+.search:focus {
+  border-color: #3b82f6;
+}
+
+.toggle {
+  padding: 0.42rem 1rem;
+  border-radius: 7px;
+  border: 1.5px solid #e2e8f0;
+  background: white;
+  color: #475569;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.toggle:hover {
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+.toggleActive {
+  composes: toggle;
+  background: #eff6ff;
+  border-color: #3b82f6;
+  color: #2563eb;
+}
+
+.clear {
+  padding: 0.42rem 1rem;
+  border-radius: 7px;
+  border: 1.5px solid #fca5a5;
+  background: #fff5f5;
+  color: #dc2626;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+  align-self: flex-end;
+}
+
+.clear:hover {
+  background: #fee2e2;
+}
