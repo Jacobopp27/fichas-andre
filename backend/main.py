@@ -58,9 +58,11 @@ app = FastAPI(title="Fichas Dashboard API", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Vercel y localhost
-    allow_methods=["GET"],
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["GET", "OPTIONS"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 
