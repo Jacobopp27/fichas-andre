@@ -10,7 +10,8 @@ export function useFichas() {
 
   const fetchData = useCallback(async () => {
     try {
-      const res = await fetch('/fichas')
+      const base = import.meta.env.VITE_API_URL ?? ''
+      const res = await fetch(`${base}/fichas`)
       if (!res.ok) {
         const body = await res.json().catch(() => ({}))
         throw new Error(body.detail || `Error ${res.status}`)

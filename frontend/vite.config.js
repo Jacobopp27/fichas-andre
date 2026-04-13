@@ -8,5 +8,6 @@ export default defineConfig({
       '/fichas': 'http://localhost:8000',
       '/health': 'http://localhost:8000',
     },
+    // Solo en desarrollo local — en producción usa VITE_API_URL
   },
 })
