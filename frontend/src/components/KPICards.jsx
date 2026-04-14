@@ -1,8 +1,9 @@
 import styles from './KPICards.module.css'
 
 export function KPICards({ data }) {
-  const este     = data.reduce((s, r) => s + (r.fichas_actual   || 0), 0)
-  const anterior = data.reduce((s, r) => s + (r.fichas_anterior || 0), 0)
+  const este     = data.reduce((s, r) => s + (r.fichas_actual || 0), 0)
+  // Anterior: solo las que NO tienen actual (no fueron sobreescritas)
+  const anterior = data.reduce((s, r) => s + (r.fichas_actual > 0 ? 0 : (r.fichas_anterior || 0)), 0)
   const total    = este + anterior
 
   const cards = [

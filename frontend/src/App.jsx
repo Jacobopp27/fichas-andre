@@ -6,7 +6,7 @@ import { FichasTable } from './components/FichasTable'
 import { EncargadoGroup } from './components/EncargadoGroup'
 import styles from './App.module.css'
 
-const INITIAL_FILTERS = { contrato: '', encargado: '', mes: '', anio: '', municipio: '', publicada: '', soloRepetidos: false, tieneFichas: '' }
+const INITIAL_FILTERS = { contrato: '', encargado: '', mes: '', anio: '', municipio: '', publicada: '', tieneFichas: '' }
 
 const _isSi = v => {
   const s = (v ?? '').toLowerCase().trim()
@@ -53,14 +53,8 @@ export default function App() {
   }, [data])
 
   const filtered = useMemo(() => {
-    const repetidos = new Set(
-      Object.entries(merged.reduce((acc, r) => {
-        acc[r.municipio] = (acc[r.municipio] || 0) + 1; return acc
-      }, {})).filter(([, c]) => c > 1).map(([m]) => m)
-    )
-
     return merged.filter(row => {
-      const total = (row.fichas_actual || 0) + (row.fichas_anterior || 0)
+      const total = row.fichas_actual > 0 ? row.fichas_actual : (row.fichas_anterior || 0)
       if (filters.contrato === 'este'     && !row.fichas_actual)   return false
       if (filters.contrato === 'anterior' && !row.fichas_anterior) return false
       if (filters.encargado && row.encargado !== filters.encargado) return false
@@ -72,9 +66,8 @@ export default function App() {
       }
       if (filters.publicada === 'si' && !_isSi(row.publicada)) return false
       if (filters.publicada === 'no' && _isSi(row.publicada)) return false
-      if (filters.soloRepetidos && !repetidos.has(row.municipio)) return false
-      if (filters.tieneFichas === 'con'  && total === 0) return false
-      if (filters.tieneFichas === 'sin'  && total > 0)  return false
+      if (filters.tieneFichas === 'con' && total === 0) return false
+      if (filters.tieneFichas === 'sin' && total > 0)  return false
       return true
     })
   }, [merged, filters])

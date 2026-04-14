@@ -15,15 +15,8 @@ export function Filters({ data, filters, onChange }) {
     data.map(r => r.anio_realizacion).filter(Boolean)
   )].sort()
 
-  // Municipios que aparecen más de una vez en el dataset completo
-  const municipiosRepetidos = new Set(
-    Object.entries(
-      data.reduce((acc, r) => { acc[r.municipio] = (acc[r.municipio] || 0) + 1; return acc }, {})
-    ).filter(([, count]) => count > 1).map(([m]) => m)
-  )
-
   const hasActive = filters.contrato || filters.encargado || filters.mes
-    || filters.anio || filters.municipio || filters.publicada || filters.soloRepetidos || filters.tieneFichas
+    || filters.anio || filters.municipio || filters.publicada || filters.tieneFichas
 
   return (
     <div className={styles.bar}>
@@ -96,21 +89,9 @@ export function Filters({ data, filters, onChange }) {
         </select>
       </div>
 
-      {/* Toggle: solo municipios repetidos */}
-      <div className={styles.group}>
-        <label className={styles.label}>Municipios</label>
-        <button
-          className={filters.soloRepetidos ? styles.toggleActive : styles.toggle}
-          onClick={() => onChange({ ...filters, soloRepetidos: !filters.soloRepetidos })}
-          title={`${municipiosRepetidos.size} municipios tienen más de un registro`}
-        >
-          {filters.soloRepetidos ? '✕ Solo repetidos' : 'Solo repetidos'}
-        </button>
-      </div>
-
       {hasActive && (
         <button className={styles.clear}
-          onClick={() => onChange({ contrato:'', encargado:'', mes:'', anio:'', municipio:'', publicada:'', soloRepetidos: false, tieneFichas: '' })}>
+          onClick={() => onChange({ contrato:'', encargado:'', mes:'', anio:'', municipio:'', publicada:'', tieneFichas: '' })}>
           Limpiar filtros
         </button>
       )}

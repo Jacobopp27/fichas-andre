@@ -69,7 +69,7 @@ export function FichasTable({ data }) {
                 </td>
                 <td className={styles.right}>
                   <strong className={total > 0 ? styles.totalPositivo : styles.totalCero}>
-                    {total.toLocaleString('es-CO')}
+                    {(row.fichas_actual > 0 ? row.fichas_actual : (row.fichas_anterior || 0)).toLocaleString('es-CO')}
                   </strong>
                 </td>
                 <td><PublicadaBadge value={row.publicada} /></td>
@@ -84,10 +84,10 @@ export function FichasTable({ data }) {
               {data.reduce((s, r) => s + (r.fichas_actual || 0), 0).toLocaleString('es-CO')}
             </td>
             <td className={`${styles.colAnterior} ${styles.footValue}`}>
-              {data.reduce((s, r) => s + (r.fichas_anterior || 0), 0).toLocaleString('es-CO')}
+              {data.reduce((s, r) => s + (r.fichas_actual > 0 ? 0 : (r.fichas_anterior || 0)), 0).toLocaleString('es-CO')}
             </td>
             <td className={`${styles.right} ${styles.footValue}`}>
-              {data.reduce((s, r) => s + (r.fichas_actual || 0) + (r.fichas_anterior || 0), 0).toLocaleString('es-CO')}
+              {data.reduce((s, r) => s + (r.fichas_actual > 0 ? r.fichas_actual : (r.fichas_anterior || 0)), 0).toLocaleString('es-CO')}
             </td>
             <td />
           </tr>
