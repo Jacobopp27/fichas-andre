@@ -6,7 +6,7 @@ export function EncargadoGroup({ data }) {
     const key = row.encargado || '— Sin encargado'
     if (!acc[key]) acc[key] = { municipios: [], total: 0 }
     acc[key].municipios.push(row)
-    acc[key].total += row.cantidad_fichas || 0
+    acc[key].total += (row.fichas_actual || 0) + (row.fichas_anterior || 0)
     return acc
   }, {})
 
@@ -31,10 +31,10 @@ export function EncargadoGroup({ data }) {
                   const esActual = m.contrato?.toLowerCase() === 'este'
                   return (
                     <li key={i} className={styles.item}>
-                      <span className={esActual ? styles.dotActual : styles.dotAnterior} />
+                      <span className={m.fichas_actual > 0 && m.fichas_anterior > 0 ? styles.dotAmbos : m.fichas_actual > 0 ? styles.dotActual : styles.dotAnterior} />
                       <span className={styles.municipio}>{m.municipio || '—'}</span>
                       <span className={styles.sub}>{m.subregion}</span>
-                      <span className={styles.cant}>{(m.cantidad_fichas || 0).toLocaleString('es-CO')}</span>
+                      <span className={styles.cant}>{((m.fichas_actual || 0) + (m.fichas_anterior || 0)).toLocaleString('es-CO')}</span>
                     </li>
                   )
                 })}

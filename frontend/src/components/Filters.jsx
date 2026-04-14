@@ -23,7 +23,7 @@ export function Filters({ data, filters, onChange }) {
   )
 
   const hasActive = filters.contrato || filters.encargado || filters.mes
-    || filters.anio || filters.municipio || filters.publicada || filters.soloRepetidos
+    || filters.anio || filters.municipio || filters.publicada || filters.soloRepetidos || filters.tieneFichas
 
   return (
     <div className={styles.bar}>
@@ -86,6 +86,16 @@ export function Filters({ data, filters, onChange }) {
         </select>
       </div>
 
+      <div className={styles.group}>
+        <label className={styles.label}>Fichas</label>
+        <select className={styles.select} value={filters.tieneFichas}
+          onChange={e => onChange({ ...filters, tieneFichas: e.target.value })}>
+          <option value="">Todas</option>
+          <option value="con">Con fichas</option>
+          <option value="sin">Sin fichas</option>
+        </select>
+      </div>
+
       {/* Toggle: solo municipios repetidos */}
       <div className={styles.group}>
         <label className={styles.label}>Municipios</label>
@@ -100,7 +110,7 @@ export function Filters({ data, filters, onChange }) {
 
       {hasActive && (
         <button className={styles.clear}
-          onClick={() => onChange({ contrato:'', encargado:'', mes:'', anio:'', municipio:'', publicada:'', soloRepetidos: false })}>
+          onClick={() => onChange({ contrato:'', encargado:'', mes:'', anio:'', municipio:'', publicada:'', soloRepetidos: false, tieneFichas: '' })}>
           Limpiar filtros
         </button>
       )}

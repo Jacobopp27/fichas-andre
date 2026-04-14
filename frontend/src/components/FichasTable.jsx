@@ -1,17 +1,25 @@
 import styles from './FichasTable.module.css'
 
-function AlertBadge({ text }) {
-  return <span className={styles.alertBadge}>{text}</span>
-}
-
 function PublicadaBadge({ value }) {
   const v = (value ?? '').toLowerCase().trim()
   const isSi = v === 'si' || v === 'sí' || v === 'yes' || v === 'x' || v === '1' || v === 'true' || v === '✔' || v === '✓'
   if (!value) return <span className={styles.missing}>—</span>
+  return <span className={isSi ? styles.badgePublicadaSi : styles.badgePublicadaNo}>{isSi ? 'Sí' : 'No'}</span>
+}
+
+function Fichas({ count, mes, anio, esActual }) {
+  if (!count && !mes) return <span className={styles.missing}>—</span>
   return (
-    <span className={isSi ? styles.badgePublicadaSi : styles.badgePublicadaNo}>
-      {isSi ? 'Sí' : 'No'}
-    </span>
+    <div className={styles.fichasCell}>
+      <span className={esActual ? styles.countActual : styles.countAnterior}>
+        {(count || 0).toLocaleString('es-CO')}
+      </span>
+      {mes && (
+        <span className={styles.mesAnio}>
+          {mes}{anio && <span className={styles.anio}> {anio}</span>}
+        </span>
+      )}
+    </div>
   )
 }
 
@@ -29,59 +37,59 @@ export function FichasTable({ data }) {
             <th>Subregión</th>
             <th>Tipo</th>
             <th>Encargado</th>
-            <th>Mes asignación</th>
-            <th>Realización</th>
-            <th>Contrato</th>
-            <th className={styles.right}>Cant. fichas</th>
+            <th className={styles.colActual}>Fichas actual</th>
+            <th className={styles.colAnterior}>Fichas anterior</th>
+            <th className={styles.right}>Total</th>
             <th>Publicada</th>
-            <th>Alertas</th>
           </tr>
         </thead>
         <tbody>
           {data.map((row, i) => {
-            const esActual = row.contrato?.toLowerCase() === 'este'
-            const sinMes = !row.mes_realizacion
+            const total = (row.fichas_actual || 0) + (row.fichas_anterior || 0)
             const sinEncargado = !row.encargado
+            const tieneAmbos = row.fichas_actual > 0 && row.fichas_anterior > 0
 
             return (
-              <tr key={i} className={esActual ? styles.rowActual : styles.rowAnterior}>
-                <td className={styles.bold}>{row.municipio || '—'}</td>
+              <tr key={i} className={tieneAmbos ? styles.rowAmbos : row.fichas_actual > 0 ? styles.rowActual : styles.rowAnterior}>
+                <td className={styles.bold}>
+                  {row.municipio || '—'}
+                  {tieneAmbos && <span className={styles.badgeRepetido}>2 contratos</span>}
+                </td>
                 <td>{row.subregion || '—'}</td>
                 <td><span className={styles.tipo}>{row.tipo_ficha || '—'}</span></td>
                 <td>
                   {row.encargado || <span className={styles.missing}>Sin asignar</span>}
+                  {sinEncargado && <span className={styles.alertBadge}>⚠</span>}
                 </td>
-                <td>{row.mes_asignacion || '—'}</td>
-                <td>
-                  {row.mes_realizacion
-                    ? <>{row.mes_realizacion}{row.anio_realizacion && <span className={styles.anio}> {row.anio_realizacion}</span>}</>
-                    : <span className={styles.missing}>Pendiente</span>
-                  }
+                <td className={styles.colActual}>
+                  <Fichas count={row.fichas_actual} mes={row.mes_actual} anio={row.anio_actual} esActual={true} />
                 </td>
-                <td>
-                  <span className={esActual ? styles.badgeActual : styles.badgeAnterior}>
-                    {esActual ? 'Actual' : 'Anterior'}
-                  </span>
+                <td className={styles.colAnterior}>
+                  <Fichas count={row.fichas_anterior} mes={row.mes_anterior} anio={row.anio_anterior} esActual={false} />
                 </td>
                 <td className={styles.right}>
-                  <strong>{(row.cantidad_fichas || 0).toLocaleString('es-CO')}</strong>
+                  <strong className={total > 0 ? styles.totalPositivo : styles.totalCero}>
+                    {total.toLocaleString('es-CO')}
+                  </strong>
                 </td>
                 <td><PublicadaBadge value={row.publicada} /></td>
-                <td>
-                  {sinMes && <AlertBadge text="Sin mes realización" />}
-                  {sinEncargado && <AlertBadge text="Sin encargado" />}
-                </td>
               </tr>
             )
           })}
         </tbody>
         <tfoot>
           <tr>
-            <td colSpan={7} className={styles.footLabel}>Total</td>
-            <td className={`${styles.right} ${styles.footValue}`}>
-              {data.reduce((s, r) => s + (r.cantidad_fichas || 0), 0).toLocaleString('es-CO')}
+            <td colSpan={4} className={styles.footLabel}>Total</td>
+            <td className={`${styles.colActual} ${styles.footValue}`}>
+              {data.reduce((s, r) => s + (r.fichas_actual || 0), 0).toLocaleString('es-CO')}
             </td>
-            <td colSpan={2} />
+            <td className={`${styles.colAnterior} ${styles.footValue}`}>
+              {data.reduce((s, r) => s + (r.fichas_anterior || 0), 0).toLocaleString('es-CO')}
+            </td>
+            <td className={`${styles.right} ${styles.footValue}`}>
+              {data.reduce((s, r) => s + (r.fichas_actual || 0) + (r.fichas_anterior || 0), 0).toLocaleString('es-CO')}
+            </td>
+            <td />
           </tr>
         </tfoot>
       </table>

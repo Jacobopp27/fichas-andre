@@ -1,13 +1,9 @@
 import styles from './KPICards.module.css'
 
 export function KPICards({ data }) {
-  const total = data.reduce((s, r) => s + (r.cantidad_fichas || 0), 0)
-  const este = data
-    .filter(r => r.contrato?.toLowerCase() === 'este')
-    .reduce((s, r) => s + (r.cantidad_fichas || 0), 0)
-  const anterior = data
-    .filter(r => r.contrato?.toLowerCase() === 'anterior')
-    .reduce((s, r) => s + (r.cantidad_fichas || 0), 0)
+  const este     = data.reduce((s, r) => s + (r.fichas_actual   || 0), 0)
+  const anterior = data.reduce((s, r) => s + (r.fichas_anterior || 0), 0)
+  const total    = este + anterior
 
   const cards = [
     { label: 'Total fichas', value: total, color: '#3b82f6', bg: '#eff6ff' },

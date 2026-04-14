@@ -6,7 +6,7 @@ import { FichasTable } from './components/FichasTable'
 import { EncargadoGroup } from './components/EncargadoGroup'
 import styles from './App.module.css'
 
-const INITIAL_FILTERS = { contrato: '', encargado: '', mes: '', anio: '', municipio: '', publicada: '', soloRepetidos: false }
+const INITIAL_FILTERS = { contrato: '', encargado: '', mes: '', anio: '', municipio: '', publicada: '', soloRepetidos: false, tieneFichas: '' }
 
 const _isSi = v => {
   const s = (v ?? '').toLowerCase().trim()
@@ -17,31 +17,70 @@ export default function App() {
   const { data, loading, error, lastUpdated, refetch } = useFichas()
   const [filters, setFilters] = useState(INITIAL_FILTERS)
 
-  const filtered = useMemo(() => {
-    // Pre-calcular municipios repetidos (aparecen más de una vez)
-    const conteoMun = data.reduce((acc, r) => {
-      acc[r.municipio] = (acc[r.municipio] || 0) + 1
-      return acc
-    }, {})
+  // Mergear filas por municipio — una fila por municipio con datos de ambos contratos
+  const merged = useMemo(() => {
+    const map = {}
+    data.forEach(row => {
+      const key = `${row.municipio}||${row.subregion}||${row.tipo_ficha}`
+      if (!map[key]) {
+        map[key] = {
+          municipio:      row.municipio,
+          subregion:      row.subregion,
+          tipo_ficha:     row.tipo_ficha,
+          encargado:      row.encargado,
+          publicada:      row.publicada,
+          fichas_actual:  0,
+          mes_actual:     '',
+          anio_actual:    '',
+          fichas_anterior: 0,
+          mes_anterior:   '',
+          anio_anterior:  '',
+        }
+      }
+      if (row.contrato === 'este') {
+        map[key].fichas_actual   = row.cantidad_fichas
+        map[key].mes_actual      = row.mes_asignacion
+        map[key].anio_actual     = row.anio_realizacion
+        map[key].encargado       = row.encargado || map[key].encargado
+        map[key].publicada       = row.publicada || map[key].publicada
+      } else {
+        map[key].fichas_anterior  = row.cantidad_fichas
+        map[key].mes_anterior     = row.mes_realizacion
+        map[key].anio_anterior    = row.anio_realizacion
+      }
+    })
+    return Object.values(map)
+  }, [data])
 
-    return data.filter(row => {
-      if (filters.contrato && row.contrato?.toLowerCase() !== filters.contrato) return false
+  const filtered = useMemo(() => {
+    const repetidos = new Set(
+      Object.entries(merged.reduce((acc, r) => {
+        acc[r.municipio] = (acc[r.municipio] || 0) + 1; return acc
+      }, {})).filter(([, c]) => c > 1).map(([m]) => m)
+    )
+
+    return merged.filter(row => {
+      const total = (row.fichas_actual || 0) + (row.fichas_anterior || 0)
+      if (filters.contrato === 'este'     && !row.fichas_actual)   return false
+      if (filters.contrato === 'anterior' && !row.fichas_anterior) return false
       if (filters.encargado && row.encargado !== filters.encargado) return false
-      if (filters.mes && row.mes_realizacion !== filters.mes) return false
-      if (filters.anio && row.anio_realizacion !== filters.anio) return false
+      if (filters.mes && row.mes_actual !== filters.mes && row.mes_anterior !== filters.mes) return false
+      if (filters.anio && row.anio_actual !== filters.anio && row.anio_anterior !== filters.anio) return false
       if (filters.municipio) {
         const q = filters.municipio.toLowerCase()
         if (!row.municipio?.toLowerCase().includes(q)) return false
       }
       if (filters.publicada === 'si' && !_isSi(row.publicada)) return false
       if (filters.publicada === 'no' && _isSi(row.publicada)) return false
-      if (filters.soloRepetidos && conteoMun[row.municipio] <= 1) return false
+      if (filters.soloRepetidos && !repetidos.has(row.municipio)) return false
+      if (filters.tieneFichas === 'con'  && total === 0) return false
+      if (filters.tieneFichas === 'sin'  && total > 0)  return false
       return true
     })
-  }, [data, filters])
+  }, [merged, filters])
 
-  const sinRealizacion = data.filter(r => !r.mes_realizacion).length
-  const sinEncargado = data.filter(r => !r.encargado).length
+  const sinRealizacion = merged.filter(r => !r.mes_actual && !r.mes_anterior).length
+  const sinEncargado = merged.filter(r => !r.encargado).length
 
   return (
     <div className={styles.root}>
